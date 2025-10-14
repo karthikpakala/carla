@@ -177,16 +177,19 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
 
     pushd ${BOOST_BASENAME}-source >/dev/null
 
-    BOOST_TOOLSET="clang-10.0"
-    BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
+  # Prefer gcc toolset for building boost b2 on hosts where the bundled
+  # Unreal clang SDK doesn't provide the full system headers (e.g. <thread>).
+  # Using gcc is more portable for the host system build steps.
+  BOOST_TOOLSET="gcc"
+  BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
 
     py3="/usr/bin/env python${PY_VERSION}"
     py3_root=`${py3} -c "import sysconfig; print(sysconfig.get_config_var('prefix'))"`
     py3_include=$(${py3} -c "from sysconfig import get_paths as gp; print(gp()['include'])")
     py3_lib=$(${py3} -c "from sysconfig import get_paths as gp; print(gp()['stdlib'])")
     pyv=`$py3 -c "import sys;x='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(x)";`
-    ./bootstrap.sh \
-        --with-toolset=clang \
+  ./bootstrap.sh \
+    --with-toolset=gcc \
         --prefix=../boost-install \
         --with-libraries=python,filesystem,system,program_options \
         --with-python=${py3} --with-python-root=${py3_root}
@@ -199,8 +202,10 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
         ${py3_include} : ${py3_lib} ;" > project-config.jam
     fi
 
-    ./b2 toolset="${BOOST_TOOLSET}" cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} stage release
-    ./b2 toolset="${BOOST_TOOLSET}" cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} install
+  ./b2 toolset="${BOOST_TOOLSET}" cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} stage release || \
+  ./b2 cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} stage release
+  ./b2 toolset="${BOOST_TOOLSET}" cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} install || \
+  ./b2 cxxflags="${BOOST_CFLAGS}" --prefix="../${BOOST_BASENAME}-install" -j ${CARLA_BUILD_CONCURRENCY} install
 
     popd >/dev/null
 
