@@ -1,0 +1,94 @@
+@startuml osm_world_renderer_sequence
+!theme plain
+
+title OSM World Renderer Sequence Diagram
+
+actor User
+participant "testclient.py" as TestClient
+participant "OsmRenderer" as Renderer
+participant "MapRasterizer" as Rasterizer  
+participant "MapDrawer" as Drawer
+participant "CARLA Client" as CarlaClient
+participant "CARLA Server" as CarlaServer
+participant "OpenDriveGenerator" as ODGenerator
+
+== OSM Data Processing ==
+
+User -> TestClient: Run test client
+activate TestClient
+
+TestClient -> Renderer: Initialize OSM Renderer
+activate Renderer
+
+Renderer -> Rasterizer: Create MapRasterizer
+activate Rasterizer
+
+Renderer -> Drawer: Create MapDrawer  
+activate Drawer
+
+TestClient -> Renderer: Load OSM file
+Renderer -> Renderer: Parse OSM XML data
+note right: Extract roads, buildings,\nlandmarks from OSM
+
+Renderer -> Rasterizer: Rasterize map geometry
+Rasterizer -> Rasterizer: Convert OSM coordinates\nto world coordinates
+Rasterizer -> Rasterizer: Generate road mesh data
+Rasterizer --> Renderer: Return rasterized data
+
+== Map Visualization ==
+
+Renderer -> Drawer: Render map visualization
+Drawer -> Drawer: Draw roads and intersections
+Drawer -> Drawer: Draw buildings and landmarks
+Drawer -> Drawer: Apply textures and materials
+Drawer --> Renderer: Return rendered image
+
+Renderer --> TestClient: Return visualization result
+TestClient --> User: Display rendered map
+
+== CARLA Integration ==
+
+TestClient -> CarlaClient: Connect to CARLA
+activate CarlaClient
+
+CarlaClient -> CarlaServer: Request world generation
+activate CarlaServer
+
+CarlaServer -> ODGenerator: Generate OpenDrive from OSM
+activate ODGenerator
+note right: Uses OSM2ODR conversion\nfrom carla/PythonAPI/carla/src/OSM2ODR.cpp
+
+ODGenerator -> ODGenerator: Convert OSM to OpenDrive format
+ODGenerator -> ODGenerator: Generate road geometry
+ODGenerator -> ODGenerator: Create lane markings
+ODGenerator -> ODGenerator: Generate traffic signs
+
+ODGenerator --> CarlaServer: Return OpenDrive data
+deactivate ODGenerator
+
+CarlaServer -> CarlaServer: Create 3D world mesh
+CarlaServer -> CarlaServer: Spawn traffic lights
+CarlaServer -> CarlaServer: Generate navigation mesh
+
+CarlaServer --> CarlaClient: World ready
+deactivate CarlaServer
+
+CarlaClient -> CarlaClient: Set no_rendering_mode
+note right: For performance testing\nwithout visual rendering
+
+CarlaClient --> TestClient: Connection established
+deactivate CarlaClient
+
+== Cleanup ==
+
+TestClient -> Renderer: Cleanup resources
+Renderer -> Drawer: Destroy drawer
+deactivate Drawer
+Renderer -> Rasterizer: Destroy rasterizer  
+deactivate Rasterizer
+deactivate Renderer
+
+TestClient -> CarlaClient: Disconnect
+deactivate TestClient
+
+@enduml

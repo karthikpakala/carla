@@ -1,0 +1,27 @@
+@startuml
+actor "CARLA Server" as Server
+participant "carla::client::Map::Map()" as MapCtor
+participant "Map::MakeMap" as MakeMap
+participant "OpenDriveParser::Load" as Parser
+participant "Road/Lane/Junction Builders" as Builders
+participant "TopologyBuilder" as Topo
+participant "WaypointGenerator" as WP
+participant "TrafficLightParser" as Signals
+participant "In-memory Map" as MapImpl
+
+Server -> MapCtor: Map(xodr_string)
+MapCtor -> MakeMap: MakeMap(xodr_string)
+MakeMap -> Parser: Load(xodr_string)
+Parser --> MakeMap: parsed_data (roads, lanes, junctions, signals)
+MakeMap -> Builders: BuildRoadsAndLanes(parsed_data.roads)
+Builders --> MakeMap: roads_container
+MakeMap -> Topo: BuildTopology(roads_container, parsed_data.junctions)
+Topo --> MakeMap: topology_graph
+MakeMap -> WP: GenerateWaypoints(roads_container, topology_graph)
+WP --> MakeMap: waypoint_index
+MakeMap -> Signals: ParseTrafficSignals(parsed_data.signals)
+Signals --> MakeMap: signals_container
+MakeMap -> MapImpl: PopulateMap(roads_container, topology_graph, waypoint_index, signals_container)
+MapImpl --> Server: Map ready (APIs: GetWaypoints, GetTopology, Signals)
+note right: Key sources: LibCarla/source/carla/client/Map.cpp\nand LibCarla/source/carla/opendrive/OpenDriveParser.*
+@enduml

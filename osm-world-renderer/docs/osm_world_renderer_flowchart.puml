@@ -1,0 +1,104 @@
+@startuml osm_world_renderer_flowchart
+!theme plain
+
+title OSM World Renderer - Process Flow Diagram
+
+start
+
+:User initiates OSM rendering;
+
+:Initialize OsmRenderer;
+note right: Create renderer instance\nwith configuration parameters
+
+:Initialize MapRasterizer;
+note right: Setup coordinate conversion\nand mesh generation components
+
+:Initialize MapDrawer;
+note right: Setup rendering pipeline\nand graphics context
+
+:Load OSM file;
+note right: Read XML data containing\nroads, buildings, landmarks
+
+if (OSM file valid?) then (yes)
+    :Parse OSM XML data;
+    note right: Extract nodes, ways,\nand relations
+    
+    :Convert OSM coordinates to world coordinates;
+    note right: Transform lat/lon to\nCartesian coordinates
+    
+    :Extract road geometry;
+    :Extract building footprints;
+    :Extract landmarks and POIs;
+    
+    :Rasterize map data;
+    note right: Generate mesh geometry\nfor rendering
+    
+    :Apply materials and textures;
+    
+    :Render visualization;
+    note right: Create visual representation\nof the map
+    
+    if (CARLA integration enabled?) then (yes)
+        :Connect to CARLA server;
+        
+        if (Connection successful?) then (yes)
+            :Convert OSM to OpenDrive format;
+            note right: Use OSM2ODR conversion\nfrom CARLA PythonAPI
+            
+            :Generate road network;
+            :Create lane markings;
+            :Generate traffic signs;
+            :Create intersection logic;
+            
+            :Send OpenDrive data to CARLA;
+            
+            :CARLA generates 3D world mesh;
+            :CARLA spawns traffic elements;
+            :CARLA creates navigation mesh;
+            
+            if (No rendering mode?) then (yes)
+                :Disable visual rendering;
+                note right: Performance optimization\nfor testing scenarios
+            else (no)
+                :Enable full rendering;
+            endif
+            
+            :World ready for simulation;
+            
+        else (no)
+            :Log connection error;
+            :Continue with standalone rendering;
+        endif
+        
+    else (no)
+        :Use standalone rendering mode;
+    endif
+    
+    :Display rendered output;
+    
+    if (Save output?) then (yes)
+        :Export rendered image;
+        :Save mesh data;
+    endif
+    
+else (no)
+    :Display error message;
+    note right: Invalid OSM file format\nor file not found
+    
+    :Log parsing errors;
+endif
+
+:Cleanup resources;
+note right: Destroy renderers,\nfree memory, close connections
+
+:Release MapDrawer;
+:Release MapRasterizer;
+:Release OsmRenderer;
+
+if (CARLA connected?) then (yes)
+    :Disconnect from CARLA;
+endif
+
+stop
+
+@enduml

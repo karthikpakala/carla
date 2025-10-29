@@ -1,0 +1,35 @@
+@startuml
+start
+:CARLA Server calls Map(xodr_string_or_path);
+if (map cached?) then (yes)
+  :Return cached In-memory Map;
+  stop
+else (no)
+  :Map ctor -> MakeMap(xodr_string_or_path);
+  :MakeMap -> OpenDriveParser::Load(xodr_string_or_path);
+  if (parse OK?) then (yes)
+    :OpenDriveParser returns parsed_data {roads, lanes, junctions, signals, objects};
+    fork
+      :BuildRoadsAndLanes(parsed_data.roads, parsed_data.lanes);
+      :Return roads_container (geometries, centerlines, lane bounds);
+    fork again
+      :BuildJunctions(parsed_data.junctions);
+      :Return junctions_container;
+    end fork
+    :TopologyBuilder.BuildTopology(roads_container, junctions_container);
+    :Return topology_graph (connectivity, links);
+    :WaypointGenerator.GenerateWaypoints(roads_container, topology_graph);
+    :Return waypoint_index (waypoint positions, headings, lane_ids);
+    :TrafficLightParser.ParseTrafficSignals(parsed_data.signals, roads_container);
+    :Return signals_container (mapped to lanes/junctions);
+    :Populate in-memory Map with roads_container, topology_graph, waypoint_index, signals_container;
+    :Build spatial indices (R-tree / KD-tree) and caches;
+    :Run validation & consistency checks;
+    :In-memory Map ready (APIs: GetWaypoints, GetTopology, GetSignals, QueryNearestLane);
+    stop
+  else (no)
+    :Log parse error and abort map creation;
+    stop
+  endif
+endif
+@enduml
