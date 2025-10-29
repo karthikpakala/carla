@@ -12,6 +12,7 @@ This document records the complete history of fixing CARLA build issues and migr
 
 ### Issue Description
 - **Primary Issue:** `make PythonAPI` build failure
+- **Secondary Issue:** `make launch` build failure with Blueprint type errors and missing headers  
 - **Secondary Goal:** Update codebase to only use types (ex: RoadType, LaneTypes) from ts:: namespace and remove dependencies for default carla types
 
 ### Build Error Summary
@@ -20,6 +21,10 @@ This document records the complete history of fixing CARLA build issues and migr
 fatal error: 'carla/road/MapDataTypes.hpp' file not found
 #include "carla/road/MapDataTypes.hpp"
          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Additional error when running: make launch -j64
+LogCompile: Error: Type 'int8' is not supported by blueprint. RoadSpline.OSMLaneDirection
+fatal error: 'carla/road/MapDataTypes.hpp' file not found (in Unreal Engine build)
 ```
 
 ## Root Cause Analysis
@@ -36,6 +41,17 @@ fatal error: 'carla/road/MapDataTypes.hpp' file not found
 ### 3. Installation Dependencies
 - **Problem:** CMakeLists.txt only included `*.h` files, not `*.hpp` files
 - **Impact:** MapDataTypes.hpp not installed to Python API dependencies directory
+
+### 4. Unreal Engine Blueprint Type Error
+- **File Affected:** `RoadSpline.h`
+- **Problem:** Property `OSMLaneDirection` declared as `int8` with `BlueprintReadWrite`
+- **Error Type:** "Type 'int8' is not supported by blueprint"
+- **Root Cause:** Unreal Engine's Blueprint system doesn't support int8 types
+
+### 5. Missing Header in Unreal Dependencies  
+- **File Missing:** `MapDataTypes.hpp` in CarlaDependencies/include directory
+- **Problem:** Header exists in LibCarla but not copied to Unreal Engine dependencies
+- **Impact:** Compilation failures in Unreal Engine build system
 
 ## Solution Implementation
 
@@ -138,6 +154,52 @@ file(GLOB libcarla_carla_road_sources
 
 **Rationale:** Include .hpp files in installation dependencies so MapDataTypes.hpp is available for Python API build.
 
+### Step 5: Fix Unreal Engine Blueprint Type Error
+
+**File:** `/home/karthik/carla/Unreal/CarlaUE4/Plugins/Carla/Source/Carla/Traffic/RoadSpline.h`
+
+**Before:**
+```cpp
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  uint8 OSMRightOfWay = 0;  // ts::LaneRightOfWay
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  int8 OSMLaneDirection = 1;  // ts::LaneDirection
+
+  void SetSplinePoints(const TArray<FVector>& Points, bool bClosedLoop = false);
+```
+
+**After:**
+```cpp
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  uint8 OSMRightOfWay = 0;  // ts::LaneRightOfWay
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  int32 OSMLaneDirection = 1;  // ts::LaneDirection
+
+  void SetSplinePoints(const TArray<FVector>& Points, bool bClosedLoop = false);
+```
+
+**Action Taken:** Changed `int8` to `int32` for `OSMLaneDirection` property because Unreal Engine's Blueprint system doesn't support `int8` types.
+
+### Step 6: Fix Missing Header in Unreal Dependencies
+
+**Action Taken:** Copied missing `MapDataTypes.hpp` to Unreal Engine dependencies directory.
+
+**Command Used:**
+```bash
+cp /home/karthik/carla/LibCarla/source/carla/road/MapDataTypes.hpp \
+   /home/karthik/carla/Unreal/CarlaUE4/Plugins/Carla/CarlaDependencies/include/carla/road/
+```
+
+**Verification:**
+```bash
+ls -la /home/karthik/carla/Unreal/CarlaUE4/Plugins/Carla/CarlaDependencies/include/carla/road/MapDataTypes.hpp
+# Output: -rw-rw-r-- 1 karthik karthik 2567 Oct 29 01:00 MapDataTypes.hpp
+```
+
+**Rationale:** The Unreal Engine build system requires `MapDataTypes.hpp` to be present in the CarlaDependencies include directory, but it was only available in the LibCarla source directory.
+
 ## Compilation Results
 
 ### LibCarla Build
@@ -159,6 +221,26 @@ BuildPythonAPI.sh: Success!
 - **Status:** ✅ SUCCESS
 - **Wheel Built:** carla-0.9.16-cp313-cp313-linux_x86_64.whl
 - **Installation:** Completed successfully
+
+### Unreal Engine Build
+```bash
+# Initial error resolved
+LogCompile: Error: Type 'int8' is not supported by blueprint. RoadSpline.OSMLaneDirection
+# Fixed by changing int8 to int32
+
+# Missing header error resolved  
+fatal error: 'carla/road/MapDataTypes.hpp' file not found
+# Fixed by copying header to CarlaDependencies directory
+
+# Build proceeding successfully with shader compilation and map loading
+LogShaderCompilers: Display: Worker (1/9): shaders left to compile 8046
+LogMaterial: Display: Missing cached shader map for material, compiling.
+LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()
+```
+- **Status:** ✅ SUCCESS
+- **Blueprint Error:** Fixed int8 → int32 conversion
+- **Missing Header:** Fixed by copying MapDataTypes.hpp to dependencies
+- **Build Progress:** Successfully reached Unreal Engine initialization
 
 ## Technical Architecture Changes
 
@@ -193,6 +275,9 @@ using BoundaryType = ts::LaneBoundaryType;
 # LibCarla build
 make PythonAPI -j4
 
+# Unreal Engine build  
+make launch -j64
+
 # Check git status
 git status
 
@@ -203,6 +288,7 @@ ls -la /home/karthik/carla/PythonAPI/carla/dependencies/include/carla/road/
 ### Expected Outputs
 - LibCarla compilation: SUCCESS with warnings only
 - Python wheel creation: SUCCESS
+- Unreal Engine build: SUCCESS with Blueprint type fix and missing header resolved
 - MapDataTypes.hpp installation: Present in dependencies directory
 
 ## File Structure Changes
@@ -239,6 +325,7 @@ LibCarla/source/carla/road/
 ## Success Criteria Met
 
 ✅ **Build Success:** Both LibCarla and Python API compile without errors  
+✅ **Unreal Engine Build:** Successfully resolved Blueprint type errors and missing headers  
 ✅ **ts:: Namespace Migration:** All types now use ts:: namespace as requested  
 ✅ **Dependency Removal:** Removed dependencies on default CARLA types  
 ✅ **Installation Fix:** MapDataTypes.hpp properly included in Python API dependencies  
@@ -250,6 +337,7 @@ LibCarla/source/carla/road/
 ```bash
 cd /home/karthik/carla
 make PythonAPI -j4
+make launch -j64
 ```
 
 ### To verify installation:
@@ -269,9 +357,12 @@ python3 -c "import carla; print('CARLA imported successfully')"
 3. **Header Strategy:** Use include wrappers for backward compatibility
 4. **Build Dependencies:** Ensure all required headers are installed for Python API
 5. **Namespace Migration:** Plan for backward compatibility when changing type systems
+6. **Unreal Engine Blueprint Types:** Use int32 instead of int8 for Blueprint-exposed properties
+7. **Cross-Platform Dependencies:** Copy headers to all required dependency directories (LibCarla + Unreal)
+8. **Build System Coordination:** Both Python API and Unreal Engine builds require the same headers
 
 ---
 
 **Document Created:** October 29, 2025  
 **Last Updated:** October 29, 2025  
-**Status:** Complete - Build successful, ts:: namespace migration accomplished
+**Status:** Complete - Build successful, ts:: namespace migration accomplished, Unreal Engine build fixed
