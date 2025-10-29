@@ -103,7 +103,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == ts::LaneType::BikeLane || lane.GetType() == ts::LaneType::Restricted ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -171,7 +171,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-      lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+      lane.GetType() == ts::LaneType::BikeLane || lane.GetType() == ts::LaneType::Restricted ? "sidewalk" : "road");
 
     const size_t number_of_rows = (vertices.size() / vertices_in_width);
 
@@ -208,16 +208,15 @@ namespace geom {
       Mesh out_mesh;
       switch(lane_pair.second.GetType())
       {
-        case road::Lane::LaneType::Driving:
-        case road::Lane::LaneType::Parking:
-        case road::Lane::LaneType::Bidirectional:
+        case ts::LaneType::Standard:
+        case ts::LaneType::HovLane:
+        case ts::LaneType::NoTrucks:
         {
           out_mesh += *GenerateTesselated(lane_pair.second);
           break;
         }
-        case road::Lane::LaneType::Shoulder:
-        case road::Lane::LaneType::Sidewalk:
-        case road::Lane::LaneType::Biking:
+        case ts::LaneType::BikeLane:
+        case ts::LaneType::Restricted:
         {
           out_mesh += *GenerateSidewalk(lane_pair.second);
           break;
@@ -341,7 +340,7 @@ namespace geom {
     out_mesh.AddUVs(uvs);
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-      lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+      lane.GetType() == ts::LaneType::BikeLane || lane.GetType() == ts::LaneType::Restricted ? "sidewalk" : "road");
 
     const int number_of_rows = (vertices.size() / vertices_in_width);
 
@@ -432,7 +431,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == ts::LaneType::BikeLane || lane.GetType() == ts::LaneType::Restricted ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(r_vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -483,7 +482,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == ts::LaneType::BikeLane || lane.GetType() == ts::LaneType::Restricted ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(l_vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -560,18 +559,21 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             Mesh lane_section_mesh;
             switch(lane_pair.second.GetType())
             {
-              case road::Lane::LaneType::Driving:
-              case road::Lane::LaneType::Parking:
-              case road::Lane::LaneType::Bidirectional:
+              case ts::LaneType::Standard:
+              case ts::LaneType::HovLane:
               {
                 lane_section_mesh += *GenerateTesselated(lane_pair.second, s_current, s_until);
                 break;
               }
-              case road::Lane::LaneType::Shoulder:
-              case road::Lane::LaneType::Sidewalk:
-              case road::Lane::LaneType::Biking:
+              case ts::LaneType::BikeLane:
+              case ts::LaneType::Restricted:
               {
                 lane_section_mesh += *GenerateSidewalk(lane_pair.second, s_current, s_until);
+                break;
+              }
+              case ts::LaneType::NoTrucks:
+              {
+                lane_section_mesh += *GenerateTesselated(lane_pair.second, s_current, s_until);
                 break;
               }
               default:
@@ -601,16 +603,15 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             Mesh lane_section_mesh;
             switch(lane_pair.second.GetType())
             {
-              case road::Lane::LaneType::Driving:
-              case road::Lane::LaneType::Parking:
-              case road::Lane::LaneType::Bidirectional:
+              case ts::LaneType::Standard:
+              case ts::LaneType::HovLane:
+              case ts::LaneType::NoTrucks:
               {
                 lane_section_mesh += *GenerateTesselated(lane_pair.second, s_current, s_end);
                 break;
               }
-              case road::Lane::LaneType::Shoulder:
-              case road::Lane::LaneType::Sidewalk:
-              case road::Lane::LaneType::Biking:
+              case ts::LaneType::BikeLane:
+              case ts::LaneType::Restricted:
               {
                 lane_section_mesh += *GenerateSidewalk(lane_pair.second, s_current, s_end);
                 break;

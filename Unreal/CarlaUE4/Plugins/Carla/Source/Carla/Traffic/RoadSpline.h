@@ -29,7 +29,20 @@ enum class ERoadSplineBoundaryType : uint8
   Exit          UMETA(DisplayName = "Exit"),
   OffRamp       UMETA(DisplayName = "OffRamp"),
   OnRamp        UMETA(DisplayName = "OnRamp"),
-  Unknown       UMETA(DisplayName = "Unknown")
+  Unknown       UMETA(DisplayName = "Unknown"),
+  // OSM-compatible boundary types
+  Solid         UMETA(DisplayName = "Solid"),
+  DoubleSolid   UMETA(DisplayName = "DoubleSolid"),
+  DashedSolid   UMETA(DisplayName = "DashedSolid"),
+  SolidDashed   UMETA(DisplayName = "SolidDashed"),
+  Dashed        UMETA(DisplayName = "Dashed"),
+  DoubleDashed  UMETA(DisplayName = "DoubleDashed"),
+  ReflectorsOnly UMETA(DisplayName = "ReflectorsOnly"),
+  Curb          UMETA(DisplayName = "Curb"),
+  Standard      UMETA(DisplayName = "Standard"),
+  HovLane       UMETA(DisplayName = "HovLane"),
+  BikeLane      UMETA(DisplayName = "BikeLane"),
+  NoTrucks      UMETA(DisplayName = "NoTrucks")
 };
 
 UENUM(BlueprintType)
@@ -66,6 +79,22 @@ public:
 
   UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "RoadInfo")
   int LaneID;
+
+  // OSM-specific properties
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  uint8 OSMRoadType = 0;  // ts::RoadType
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM") 
+  uint8 OSMLaneType = 0;  // ts::LaneType
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  uint8 OSMBoundaryColor = 0;  // ts::LaneBoundaryColor
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  uint8 OSMRightOfWay = 0;  // ts::LaneRightOfWay
+
+  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
+  int8 OSMLaneDirection = 1;  // ts::LaneDirection
 
   void SetSplinePoints(const TArray<FVector>& Points, bool bClosedLoop = false);
 };

@@ -67,47 +67,47 @@ namespace parser {
   static road::Lane::LaneType StringToLaneType(std::string &&str) {
     StringUtil::ToLower(str);
     if (str == "driving") {
-      return road::Lane::LaneType::Driving;
+      return ts::LaneType::Standard;
     } else if (str == "stop") {
-      return road::Lane::LaneType::Stop;
+      return ts::LaneType::Restricted;
     } else if (str == "shoulder") {
-      return road::Lane::LaneType::Shoulder;
+      return ts::LaneType::Standard;
     } else if (str == "biking") {
-      return road::Lane::LaneType::Biking;
+      return ts::LaneType::BikeLane;
     } else if (str == "sidewalk") {
-      return road::Lane::LaneType::Sidewalk;
+      return ts::LaneType::Restricted;
     } else if (str == "border") {
-      return road::Lane::LaneType::Border;
+      return ts::LaneType::Restricted;
     } else if (str == "restricted") {
-      return road::Lane::LaneType::Restricted;
+      return ts::LaneType::Restricted;
     } else if (str == "parking") {
-      return road::Lane::LaneType::Parking;
+      return ts::LaneType::Restricted;
     } else if (str == "bidirectional") {
-      return road::Lane::LaneType::Bidirectional;
+      return ts::LaneType::Standard;
     } else if (str == "median") {
-      return road::Lane::LaneType::Median;
+      return ts::LaneType::Restricted;
     } else if (str == "special1") {
-      return road::Lane::LaneType::Special1;
+      return ts::LaneType::Restricted;
     } else if (str == "special2") {
-      return road::Lane::LaneType::Special2;
+      return ts::LaneType::Restricted;
     } else if (str == "special3") {
-      return road::Lane::LaneType::Special3;
+      return ts::LaneType::Restricted;
     } else if (str == "roadworks") {
-      return road::Lane::LaneType::RoadWorks;
+      return ts::LaneType::Restricted;
     } else if (str == "tram") {
-      return road::Lane::LaneType::Tram;
+      return ts::LaneType::Restricted;
     } else if (str == "rail") {
-      return road::Lane::LaneType::Rail;
+      return ts::LaneType::Restricted;
     } else if (str == "entry") {
-      return road::Lane::LaneType::Entry;
+      return ts::LaneType::Standard;
     } else if (str == "exit") {
-      return road::Lane::LaneType::Exit;
+      return ts::LaneType::Standard;
     } else if (str == "offramp") {
-      return road::Lane::LaneType::OffRamp;
+      return ts::LaneType::Standard;
     } else if (str == "onramp") {
-      return road::Lane::LaneType::OnRamp;
+      return ts::LaneType::Standard;
     } else {
-      return road::Lane::LaneType::None;
+      return ts::LaneType::NotSet;
     }
   }
 

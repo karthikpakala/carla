@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "carla/road/MapDataTypes.hpp"
 #include <cstdint>
 #include <string>
 
@@ -16,6 +17,10 @@ namespace element {
   class RoadInfoMarkRecord;
 
   struct LaneMarking {
+
+    // Use the new boundary types from MapDataTypes.hpp
+    using BoundaryType = ts::LaneBoundaryType;
+    using BoundaryColor = ts::LaneBoundaryColor;
 
     enum class Type {
       Other,

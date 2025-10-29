@@ -67,68 +67,26 @@ FString LaneTypeToFString(carla::road::Lane::LaneType LaneType)
 {
   switch (LaneType)
   {
-  case carla::road::Lane::LaneType::Driving:
-    return FString("Driving");
+  case ts::LaneType::Standard:
+    return FString("Standard");
     break;
-  case carla::road::Lane::LaneType::Stop:
-    return FString("Stop");
+  case ts::LaneType::HovLane:
+    return FString("HovLane");
     break;
-  case carla::road::Lane::LaneType::Shoulder:
-    return FString("Shoulder");
+  case ts::LaneType::BikeLane:
+    return FString("BikeLane");
     break;
-  case carla::road::Lane::LaneType::Biking:
-    return FString("Biking");
+  case ts::LaneType::NoTrucks:
+    return FString("NoTrucks");
     break;
-  case carla::road::Lane::LaneType::Sidewalk:
-    return FString("Sidewalk");
-    break;
-  case carla::road::Lane::LaneType::Border:
-    return FString("Border");
-    break;
-  case carla::road::Lane::LaneType::Restricted:
+  case ts::LaneType::Restricted:
     return FString("Restricted");
     break;
-  case carla::road::Lane::LaneType::Parking:
-    return FString("Parking");
+  case ts::LaneType::NotSet:
+    return FString("NotSet");
     break;
-  case carla::road::Lane::LaneType::Bidirectional:
-    return FString("Bidirectional");
-    break;
-  case carla::road::Lane::LaneType::Median:
-    return FString("Median");
-    break;
-  case carla::road::Lane::LaneType::Special1:
-    return FString("Special1");
-    break;
-  case carla::road::Lane::LaneType::Special2:
-    return FString("Special2");
-    break;
-  case carla::road::Lane::LaneType::Special3:
-    return FString("Special3");
-    break;
-  case carla::road::Lane::LaneType::RoadWorks:
-    return FString("RoadWorks");
-    break;
-  case carla::road::Lane::LaneType::Tram:
-    return FString("Tram");
-    break;
-  case carla::road::Lane::LaneType::Rail:
-    return FString("Rail");
-    break;
-  case carla::road::Lane::LaneType::Entry:
-    return FString("Entry");
-    break;
-  case carla::road::Lane::LaneType::Exit:
-    return FString("Exit");
-    break;
-  case carla::road::Lane::LaneType::OffRamp:
-    return FString("OffRamp");
-    break;
-  case carla::road::Lane::LaneType::OnRamp:
-    return FString("OnRamp");
-    break;
-  case carla::road::Lane::LaneType::Any:
-    return FString("Any");
+  default:
+    return FString("Unknown");
     break;
   }
 

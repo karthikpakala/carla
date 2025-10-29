@@ -951,7 +951,7 @@ namespace road {
   void MapBuilder::CreateJunctionBoundingBoxes(Map &map) {
     for (auto &junctionpair : map._data.GetJunctions()) {
       auto* junction = map.GetJunction(junctionpair.first);
-      auto waypoints = map.GetJunctionWaypoints(junction->GetId(), Lane::LaneType::Any);
+      auto waypoints = map.GetJunctionWaypoints(junction->GetId(), ts::LaneType::Standard);
       const int number_intervals = 10;
 
       float minx = std::numeric_limits<float>::max();
@@ -1156,7 +1156,7 @@ void MapBuilder::CreateController(
       auto signal_rotation = signal->GetTransform().rotation;
       auto closest_waypoint_to_signal =
           map.GetClosestWaypointOnRoad(signal_position,
-          static_cast<int32_t>(carla::road::Lane::LaneType::Shoulder) |  static_cast<int32_t>(carla::road::Lane::LaneType::Driving));
+          static_cast<int32_t>(ts::LaneType::Restricted) |  static_cast<int32_t>(ts::LaneType::Standard));
       // workarround to not move stencil stop
       if (
           signal->GetName().find("Stencil_STOP") != std::string::npos ||
@@ -1181,25 +1181,25 @@ void MapBuilder::CreateController(
             }
 
           auto right_waypoint = map.GetRight(closest_waypoint_to_signal.get());
-          auto right_lane_type = (right_waypoint) ? map.GetLaneType(right_waypoint.get()) : carla::road::Lane::LaneType::None;
+          auto right_lane_type = (right_waypoint) ? map.GetLaneType(right_waypoint.get()) : ts::LaneType::NotSet;
 
           auto left_waypoint = map.GetLeft(closest_waypoint_to_signal.get());
-          auto left_lane_type = (left_waypoint) ? map.GetLaneType(left_waypoint.get()) : carla::road::Lane::LaneType::None;
+          auto left_lane_type = (left_waypoint) ? map.GetLaneType(left_waypoint.get()) : ts::LaneType::NotSet;
 
           if (is_rht) {
             // Move to the right if possible, then left
-            if (right_lane_type != carla::road::Lane::LaneType::Driving) {
+            if (right_lane_type != ts::LaneType::Standard) {
               displacement_direction = 1;
-            } else if (left_lane_type != carla::road::Lane::LaneType::Driving) {
+            } else if (left_lane_type != ts::LaneType::Standard) {
               displacement_direction = -1;
             } else {
               displacement_direction = 0;
             }
           } else {
             // Move to the left if possible, then right
-            if (left_lane_type != carla::road::Lane::LaneType::Driving) {
+            if (left_lane_type != ts::LaneType::Standard) {
               displacement_direction = -1;
-            } else if (right_lane_type != carla::road::Lane::LaneType::Driving) {
+            } else if (right_lane_type != ts::LaneType::Standard) {
               displacement_direction = 1;
             } else {
               displacement_direction = 0;
@@ -1212,7 +1212,7 @@ void MapBuilder::CreateController(
           signal_rotation = road_transform.rotation;
           closest_waypoint_to_signal =
               map.GetClosestWaypointOnRoad(signal_position,
-              static_cast<int32_t>(carla::road::Lane::LaneType::Shoulder) |  static_cast<int32_t>(carla::road::Lane::LaneType::Driving));
+              static_cast<int32_t>(ts::LaneType::Restricted) |  static_cast<int32_t>(ts::LaneType::Standard));
           distance_to_road =
               (map.ComputeTransform(closest_waypoint_to_signal.get()).location -
               signal_position).Length();
