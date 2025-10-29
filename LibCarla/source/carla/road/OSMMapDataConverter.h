@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "carla/road/MapDataTypes.hpp"
+#include "carla/road/RoadTypes.h"
 #include "carla/road/Lane.h"
 #include "carla/road/element/LaneMarking.h"
 

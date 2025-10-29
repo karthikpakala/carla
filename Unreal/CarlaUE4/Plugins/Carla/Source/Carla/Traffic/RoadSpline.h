@@ -94,7 +94,7 @@ public:
   uint8 OSMRightOfWay = 0;  // ts::LaneRightOfWay
 
   UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OSM")
-  int8 OSMLaneDirection = 1;  // ts::LaneDirection
+  int32 OSMLaneDirection = 1;  // ts::LaneDirection
 
   void SetSplinePoints(const TArray<FVector>& Points, bool bClosedLoop = false);
 };

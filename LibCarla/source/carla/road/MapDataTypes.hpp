@@ -44,6 +44,15 @@ enum class LaneType : std::uint8_t
     BikeLane   = 3,
     NoTrucks   = 4,
     Restricted = 5,
+    // Legacy compatibility values from old CARLA enum
+    None          = 6,
+    Driving       = 1,  // Alias for Standard
+    Parking       = 7,
+    Bidirectional = 8,
+    Shoulder      = 9,
+    Sidewalk      = 10,
+    Biking        = 11,
+    Any           = 255 // Special value for "any lane type"
 };
 
 enum class LaneRightOfWay : std::uint8_t

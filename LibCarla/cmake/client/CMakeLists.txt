@@ -152,7 +152,8 @@ install(FILES ${libcarla_carla_profiler_headers} DESTINATION include/carla/profi
 
 file(GLOB libcarla_carla_road_sources
     "${libcarla_source_path}/carla/road/*.cpp"
-    "${libcarla_source_path}/carla/road/*.h")
+    "${libcarla_source_path}/carla/road/*.h"
+    "${libcarla_source_path}/carla/road/*.hpp")
 set(libcarla_sources "${libcarla_sources};${libcarla_carla_road_sources}")
 install(FILES ${libcarla_carla_road_sources} DESTINATION include/carla/road)
 
