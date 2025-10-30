@@ -27,7 +27,7 @@ Lane::LaneType OSMMapDataConverter::ConvertOSMWayTypeToLaneType(const std::strin
     {"path", ts::LaneType::Restricted},
     {"pedestrian", ts::LaneType::Restricted},
     {"living_street", ts::LaneType::Standard},
-    {"unclassified", ts::LaneType::Standard},
+    {"unclassified", ts::LaneType::NotSet},
     {"bus_guideway", ts::LaneType::HovLane},
     {"escape", ts::LaneType::Restricted},
     {"raceway", ts::LaneType::Standard}
