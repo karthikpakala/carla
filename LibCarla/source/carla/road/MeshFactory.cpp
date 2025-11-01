@@ -103,7 +103,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == road::Lane::LaneType::BikeLane ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -171,7 +171,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-      lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+      lane.GetType() == road::Lane::LaneType::BikeLane ? "sidewalk" : "road");
 
     const size_t number_of_rows = (vertices.size() / vertices_in_width);
 
@@ -208,20 +208,19 @@ namespace geom {
       Mesh out_mesh;
       switch(lane_pair.second.GetType())
       {
-        case road::Lane::LaneType::Driving:
-        case road::Lane::LaneType::Parking:
-        case road::Lane::LaneType::Bidirectional:
+        case road::Lane::LaneType::Standard:
+        case road::Lane::LaneType::Restricted:
         {
           out_mesh += *GenerateTesselated(lane_pair.second);
           break;
         }
-        case road::Lane::LaneType::Shoulder:
-        case road::Lane::LaneType::Sidewalk:
-        case road::Lane::LaneType::Biking:
+        case road::Lane::LaneType::HovLane:
+        case road::Lane::LaneType::BikeLane:
         {
           out_mesh += *GenerateSidewalk(lane_pair.second);
           break;
         }
+        case road::Lane::LaneType::NoTrucks:
         default:
         {
           out_mesh += *GenerateTesselated(lane_pair.second);
@@ -341,7 +340,7 @@ namespace geom {
     out_mesh.AddUVs(uvs);
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-      lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+      lane.GetType() == road::Lane::LaneType::BikeLane ? "sidewalk" : "road");
 
     const int number_of_rows = (vertices.size() / vertices_in_width);
 
@@ -432,7 +431,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == road::Lane::LaneType::BikeLane ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(r_vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -483,7 +482,7 @@ namespace geom {
 
     // Add the adient material, create the strip and close the material
     out_mesh.AddMaterial(
-        lane.GetType() == road::Lane::LaneType::Sidewalk ? "sidewalk" : "road");
+        lane.GetType() == road::Lane::LaneType::BikeLane ? "sidewalk" : "road");
     out_mesh.AddTriangleStrip(l_vertices);
     out_mesh.EndMaterial();
     return std::make_unique<Mesh>(out_mesh);
@@ -560,16 +559,15 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             Mesh lane_section_mesh;
             switch(lane_pair.second.GetType())
             {
-              case road::Lane::LaneType::Driving:
-              case road::Lane::LaneType::Parking:
-              case road::Lane::LaneType::Bidirectional:
+              case road::Lane::LaneType::Standard:
+              case road::Lane::LaneType::Restricted:
+              case road::Lane::LaneType::NoTrucks:
               {
                 lane_section_mesh += *GenerateTesselated(lane_pair.second, s_current, s_until);
                 break;
               }
-              case road::Lane::LaneType::Shoulder:
-              case road::Lane::LaneType::Sidewalk:
-              case road::Lane::LaneType::Biking:
+              case road::Lane::LaneType::HovLane:
+              case road::Lane::LaneType::BikeLane:
               {
                 lane_section_mesh += *GenerateSidewalk(lane_pair.second, s_current, s_until);
                 break;
@@ -601,16 +599,15 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             Mesh lane_section_mesh;
             switch(lane_pair.second.GetType())
             {
-              case road::Lane::LaneType::Driving:
-              case road::Lane::LaneType::Parking:
-              case road::Lane::LaneType::Bidirectional:
+              case road::Lane::LaneType::Standard:
+              case road::Lane::LaneType::Restricted:
+              case road::Lane::LaneType::NoTrucks:
               {
                 lane_section_mesh += *GenerateTesselated(lane_pair.second, s_current, s_end);
                 break;
               }
-              case road::Lane::LaneType::Shoulder:
-              case road::Lane::LaneType::Sidewalk:
-              case road::Lane::LaneType::Biking:
+              case road::Lane::LaneType::HovLane:
+              case road::Lane::LaneType::BikeLane:
               {
                 lane_section_mesh += *GenerateSidewalk(lane_pair.second, s_current, s_end);
                 break;
@@ -755,17 +752,24 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
         if (lane.first != 0) {
           switch(lane.second.GetType())
           {
-            case road::Lane::LaneType::Driving:
-            case road::Lane::LaneType::Parking:
-            case road::Lane::LaneType::Bidirectional:
+            case road::Lane::LaneType::Standard:
+            case road::Lane::LaneType::Restricted:
+            case road::Lane::LaneType::NoTrucks:
+            case road::Lane::LaneType::HovLane:
+            case road::Lane::LaneType::BikeLane:
             {
               GenerateLaneMarksForNotCenterLine(lane_section, lane.second, inout, outinfo);
               outinfo.push_back("white");
               break;
             }
+            case road::Lane::LaneType::NotSet:
+            {
+              // No lane markings for unset lanes
+              break;
+            }
           }
         } else {
-          if(lane.second.GetType() == road::Lane::LaneType::None ){
+          if(lane.second.GetType() == road::Lane::LaneType::NotSet ){
             GenerateLaneMarksForCenterLine(road, lane_section, lane.second, inout, outinfo);
             outinfo.push_back("yellow");
           }
@@ -813,7 +817,7 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::Broken: {
+          case carla::road::element::LaneMarking::Type::Dashed: {
             size_t currentIndex = out_mesh.GetVertices().size() + 1;
 
             std::pair<geom::Vector3D, geom::Vector3D> edges = 
@@ -845,27 +849,23 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
 
             break;
           }
-          case carla::road::element::LaneMarking::Type::SolidSolid: {
+          case carla::road::element::LaneMarking::Type::DoubleSolid: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::SolidBroken: {
+          case carla::road::element::LaneMarking::Type::SolidDashed: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BrokenSolid: {
+          case carla::road::element::LaneMarking::Type::DashedSolid: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BrokenBroken: {
+          case carla::road::element::LaneMarking::Type::DoubleDashed: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BottsDots: {
-            s_current += road_param.resolution;
-            break;
-          }
-          case carla::road::element::LaneMarking::Type::Grass: {
+          case carla::road::element::LaneMarking::Type::ReflectorsOnly: {
             s_current += road_param.resolution;
             break;
           }
@@ -873,7 +873,7 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::Other: {
+          case carla::road::element::LaneMarking::Type::NotSet: {
             s_current += road_param.resolution;
             break;
           }
@@ -948,7 +948,7 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::Broken: {
+          case carla::road::element::LaneMarking::Type::Dashed: {
             size_t currentIndex = out_mesh.GetVertices().size() + 1;
 
             std::pair<geom::Vector3D, geom::Vector3D> edges = 
@@ -979,27 +979,23 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
 
             break;
           }
-          case carla::road::element::LaneMarking::Type::SolidSolid: {
+          case carla::road::element::LaneMarking::Type::DoubleSolid: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::SolidBroken: {
+          case carla::road::element::LaneMarking::Type::SolidDashed: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BrokenSolid: {
+          case carla::road::element::LaneMarking::Type::DashedSolid: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BrokenBroken: {
+          case carla::road::element::LaneMarking::Type::DoubleDashed: {
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::BottsDots: {
-            s_current += road_param.resolution;
-            break;
-          }
-          case carla::road::element::LaneMarking::Type::Grass: {
+          case carla::road::element::LaneMarking::Type::ReflectorsOnly: {
             s_current += road_param.resolution;
             break;
           }
@@ -1007,7 +1003,7 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
             s_current += road_param.resolution;
             break;
           }
-          case carla::road::element::LaneMarking::Type::Other: {
+          case carla::road::element::LaneMarking::Type::NotSet: {
             s_current += road_param.resolution;
             break;
           }
@@ -1170,15 +1166,14 @@ std::map<road::Lane::LaneType , std::vector<std::unique_ptr<Mesh>>> MeshFactory:
   {
     switch(type)
     {
-      case road::Lane::LaneType::Driving:
-      case road::Lane::LaneType::Parking:
-      case road::Lane::LaneType::Bidirectional:
+      case road::Lane::LaneType::Standard:
+      case road::Lane::LaneType::Restricted:
+      case road::Lane::LaneType::NoTrucks:
       {
         return default_num_vertices;
       }
-      case road::Lane::LaneType::Shoulder:
-      case road::Lane::LaneType::Sidewalk:
-      case road::Lane::LaneType::Biking:
+      case road::Lane::LaneType::HovLane:
+      case road::Lane::LaneType::BikeLane:
       {
         return 6;
       }

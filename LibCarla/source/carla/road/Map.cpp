@@ -86,7 +86,7 @@ namespace road {
       if (lane.GetId() == 0) {
         continue;
       }
-      if ((static_cast<uint32_t>(lane.GetType()) & static_cast<uint32_t>(Lane::LaneType::Driving)) > 0) {
+      if (lane.GetType() == Lane::LaneType::Standard) {
         std::forward<FuncT>(func)(Waypoint{
             road_id,
             lane_section.GetId(),
@@ -1030,11 +1030,17 @@ namespace road {
     std::vector<Waypoint> topology;
     for (const auto &pair : _data.GetRoads()) {
       const auto &road = pair.second;
-      ForEachLane(road, Lane::LaneType::Any, [&](auto &&waypoint) {
+      // Iterate over all lane types since we removed Any support
+      auto process_all_lanes = [&](auto &&waypoint) {
         if(waypoint.lane_id != 0) {
           topology.push_back(waypoint);
         }
-      });
+      };
+      ForEachLane(road, Lane::LaneType::Standard, process_all_lanes);
+      ForEachLane(road, Lane::LaneType::HovLane, process_all_lanes);
+      ForEachLane(road, Lane::LaneType::BikeLane, process_all_lanes);
+      ForEachLane(road, Lane::LaneType::NoTrucks, process_all_lanes);
+      ForEachLane(road, Lane::LaneType::Restricted, process_all_lanes);
     }
 
     // Container of segments and waypoints
@@ -1212,7 +1218,12 @@ namespace road {
         for (auto &&lane_section : road.GetLaneSections()) {
           for (auto &&lane_pair : lane_section.GetLanes()) {
             const auto &lane = lane_pair.second;
-            if (lane.GetType() != road::Lane::LaneType::Sidewalk) {
+            // Generate mesh for all valid lane types (no sidewalk support)
+            if (lane.GetType() == road::Lane::LaneType::Standard ||
+                lane.GetType() == road::Lane::LaneType::HovLane ||
+                lane.GetType() == road::Lane::LaneType::BikeLane ||
+                lane.GetType() == road::Lane::LaneType::NoTrucks ||
+                lane.GetType() == road::Lane::LaneType::Restricted) {
               lane_meshes.push_back(mesh_factory.Generate(lane));
             } else {
               sidewalk_lane_meshes.push_back(mesh_factory.Generate(lane));
@@ -1352,7 +1363,7 @@ namespace road {
         for (auto &&lane_section : road.GetLaneSections()) {
           LaneId min_lane = 0;
           for (auto &pairlane : lane_section.GetLanes()) {
-            if (min_lane > pairlane.first && pairlane.second.GetType() == Lane::LaneType::Driving) {
+            if (min_lane > pairlane.first && pairlane.second.GetType() == Lane::LaneType::Standard) {
               min_lane = pairlane.first;
             }
           }
@@ -1671,7 +1682,7 @@ namespace road {
         std::vector<carla::geom::Vector3D> perimeterpoints;
 
         auto pmesh = SDFToMesh(junction, perimeterpoints, 75);
-        (*junction_out_mesh_list)[road::Lane::LaneType::Driving].push_back(std::move(pmesh));
+        (*junction_out_mesh_list)[road::Lane::LaneType::Standard].push_back(std::move(pmesh));
 
         for (const auto& connection_pair : junction.GetConnections()) {
           const auto& connection = connection_pair.second;
@@ -1679,21 +1690,15 @@ namespace road {
           for (auto&& lane_section : road.GetLaneSections()) {
             for (auto&& lane_pair : lane_section.GetLanes()) {
               const auto& lane = lane_pair.second;
-              if ( lane.GetType() == road::Lane::LaneType::Sidewalk ) {
-                boost::optional<element::Waypoint> sw =
-                  GetWaypoint(road.GetId(), lane_pair.first, lane.GetDistance() + (lane.GetLength() * 0.5f));
-                if( GetWaypoint(ComputeTransform(*sw).location).get_ptr () == nullptr ){
-                  sidewalk_lane_meshes.push_back(mesh_factory.GenerateSidewalk(lane));
-                }
-              }
+              // Sidewalk support removed - no longer processing sidewalk lanes
             }
           }
         }
         std::unique_ptr<geom::Mesh> sidewalk_mesh = std::make_unique<geom::Mesh>();
-        for (auto& lane : sidewalk_lane_meshes) {
-          *sidewalk_mesh += *lane;
-        }
-        (*junction_out_mesh_list)[road::Lane::LaneType::Sidewalk].push_back(std::move(sidewalk_mesh));
+        // Sidewalk support removed - no longer processing sidewalk meshes
+        // for (auto& lane : sidewalk_lane_meshes) {
+        //   *sidewalk_mesh += *lane;
+        // }
       } else {
         std::vector<std::unique_ptr<geom::Mesh>> lane_meshes;
         std::vector<std::unique_ptr<geom::Mesh>> sidewalk_lane_meshes;
@@ -1703,7 +1708,12 @@ namespace road {
           for (auto&& lane_section : road.GetLaneSections()) {
             for (auto&& lane_pair : lane_section.GetLanes()) {
               const auto& lane = lane_pair.second;
-              if (lane.GetType() != road::Lane::LaneType::Sidewalk) {
+              // Generate mesh for all valid lane types (no sidewalk support)
+              if (lane.GetType() == road::Lane::LaneType::Standard ||
+                  lane.GetType() == road::Lane::LaneType::HovLane ||
+                  lane.GetType() == road::Lane::LaneType::BikeLane ||
+                  lane.GetType() == road::Lane::LaneType::NoTrucks ||
+                  lane.GetType() == road::Lane::LaneType::Restricted) {
                 lane_meshes.push_back(mesh_factory.GenerateTesselated(lane));
               }
               else {
@@ -1721,8 +1731,8 @@ namespace road {
           *sidewalk_mesh += *lane;
         }
 
-        (*junction_out_mesh_list)[road::Lane::LaneType::Driving].push_back(std::move(merged_mesh));
-        (*junction_out_mesh_list)[road::Lane::LaneType::Sidewalk].push_back(std::move(sidewalk_mesh));
+        (*junction_out_mesh_list)[road::Lane::LaneType::Standard].push_back(std::move(merged_mesh));
+        // Sidewalk support removed - no longer adding sidewalk meshes
       }
     }
 

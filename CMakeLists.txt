@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.5)
 project(CARLA)
 
 # If no CMAKE_BUILD_TYPE is specified and the generator is single-configuration,

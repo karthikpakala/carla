@@ -14,6 +14,7 @@
 #include "carla/road/element/Waypoint.h"
 #include "carla/road/Lane.h"
 #include "carla/road/RoadTypes.h"
+#include "carla/road/MapDataTypes.h"
 
 #include <boost/optional.hpp>
 
@@ -67,7 +68,7 @@ namespace client {
 
     double GetLaneWidth() const;
 
-    road::Lane::LaneType GetType() const;
+    ts::LaneType GetType() const;
 
     std::vector<SharedPtr<Waypoint>> GetNext(double distance) const;
 

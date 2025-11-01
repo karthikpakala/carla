@@ -42,7 +42,7 @@ void UYieldSignComponent::InitializeSign(const carla::road::Map &Map)
             continue;
         }
         auto signal_waypoint = signal_waypoint_optional.value();
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving) {
+        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Standard) {
           continue;
         }
 
@@ -128,7 +128,7 @@ void UYieldSignComponent::InitializeSign(const carla::road::Map &Map)
               continue;
             }
 
-            if(Map.GetLane(Waypoint).GetType() != cr::Lane::LaneType::Driving)
+            if(Map.GetLane(Waypoint).GetType() != cr::Lane::LaneType::Standard)
               continue;
 
             // Cover the road within the junction

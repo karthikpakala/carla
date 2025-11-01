@@ -17,7 +17,7 @@ namespace client {
   }
 
   std::vector<std::pair<SharedPtr<Waypoint>, SharedPtr<Waypoint>>> Junction::GetWaypoints(
-      road::Lane::LaneType type) const {
+      ts::LaneType type) const {
     return _parent->GetJunctionWaypoints(GetId(), type);
   }
 

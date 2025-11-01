@@ -17,18 +17,23 @@ def convert(args):
 
     # Set OSM road types to export to OpenDRIVE
     settings.set_osm_way_types([
-        "motorway",
-        "motorway_link",
-        "trunk",
-        "trunk_link",
-        "primary",
-        "primary_link",
-        "secondary",
-        "secondary_link",
-        "tertiary",
-        "tertiary_link",
-        "unclassified",
-        "residential"
+        # "motorway",
+        # "motorway_link",
+        # "trunk",
+        # "trunk_link",
+        # "primary",
+        # "primary_link",
+        # "secondary",
+        # "secondary_link",
+        # "tertiary",
+        # "tertiary_link",
+        # "unclassified",
+        # "residential"
+        "notset",
+        "highway",
+        "surface_street",
+        "intersection",
+        "highway_connector"
     ])
     settings.default_lane_width = args.lane_width
     settings.generate_traffic_lights = args.traffic_lights

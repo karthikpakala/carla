@@ -511,33 +511,19 @@ void ACarlaGameModeBase::SpawnRoadSplines()
       {
         const auto& Lane = LaneTuple.second;
         auto LaneType = Lane.GetType();
-        if (LaneType == carla::road::Lane::LaneType::None)
+        if (LaneType == carla::road::Lane::LaneType::NotSet)
           continue;
 
         auto AssignBoundaryType = [&](ARoadSpline* SplineActor)
         {
           switch (LaneType)
           {
-            case carla::road::Lane::LaneType::Driving:       SplineActor->BoundaryType = ERoadSplineBoundaryType::Driving; break;
-            case carla::road::Lane::LaneType::Stop:          SplineActor->BoundaryType = ERoadSplineBoundaryType::Stop; break;
-            case carla::road::Lane::LaneType::Shoulder:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Shoulder; break;
-            case carla::road::Lane::LaneType::Biking:        SplineActor->BoundaryType = ERoadSplineBoundaryType::Biking; break;
-            case carla::road::Lane::LaneType::Sidewalk:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Sidewalk; break;
-            case carla::road::Lane::LaneType::Border:        SplineActor->BoundaryType = ERoadSplineBoundaryType::Border; break;
+            case carla::road::Lane::LaneType::NotSet:        SplineActor->BoundaryType = ERoadSplineBoundaryType::Unknown; break;
+            case carla::road::Lane::LaneType::Standard:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Driving; break;
+            case carla::road::Lane::LaneType::HovLane:       SplineActor->BoundaryType = ERoadSplineBoundaryType::Shoulder; break;
+            case carla::road::Lane::LaneType::BikeLane:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Biking; break;
+            case carla::road::Lane::LaneType::NoTrucks:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Restricted; break;
             case carla::road::Lane::LaneType::Restricted:    SplineActor->BoundaryType = ERoadSplineBoundaryType::Restricted; break;
-            case carla::road::Lane::LaneType::Parking:       SplineActor->BoundaryType = ERoadSplineBoundaryType::Parking; break;
-            case carla::road::Lane::LaneType::Bidirectional: SplineActor->BoundaryType = ERoadSplineBoundaryType::Bidirectional; break;
-            case carla::road::Lane::LaneType::Median:        SplineActor->BoundaryType = ERoadSplineBoundaryType::Median; break;
-            case carla::road::Lane::LaneType::Special1:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Special1; break;
-            case carla::road::Lane::LaneType::Special2:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Special2; break;
-            case carla::road::Lane::LaneType::Special3:      SplineActor->BoundaryType = ERoadSplineBoundaryType::Special3; break;
-            case carla::road::Lane::LaneType::RoadWorks:     SplineActor->BoundaryType = ERoadSplineBoundaryType::RoadWorks; break;
-            case carla::road::Lane::LaneType::Tram:          SplineActor->BoundaryType = ERoadSplineBoundaryType::Tram; break;
-            case carla::road::Lane::LaneType::Rail:          SplineActor->BoundaryType = ERoadSplineBoundaryType::Rail; break;
-            case carla::road::Lane::LaneType::Entry:         SplineActor->BoundaryType = ERoadSplineBoundaryType::Entry; break;
-            case carla::road::Lane::LaneType::Exit:          SplineActor->BoundaryType = ERoadSplineBoundaryType::Exit; break;
-            case carla::road::Lane::LaneType::OffRamp:       SplineActor->BoundaryType = ERoadSplineBoundaryType::OffRamp; break;
-            case carla::road::Lane::LaneType::OnRamp:        SplineActor->BoundaryType = ERoadSplineBoundaryType::OnRamp; break;
             default:                                         SplineActor->BoundaryType = ERoadSplineBoundaryType::Unknown; break;
           }
         };
@@ -745,7 +731,7 @@ void ACarlaGameModeBase::DebugShowSignals(bool enable)
         auto signal_waypoint = Map->GetWaypoint(
             RoadId, lane, SignalReference->GetS()).get();
 
-        if(Map->GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if(Map->GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Standard)
           continue;
 
         FTransform ReferenceTransform = Map->ComputeTransform(signal_waypoint);

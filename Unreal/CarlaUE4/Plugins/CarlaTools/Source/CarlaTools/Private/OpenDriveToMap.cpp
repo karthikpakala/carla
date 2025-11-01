@@ -67,68 +67,23 @@ FString LaneTypeToFString(carla::road::Lane::LaneType LaneType)
 {
   switch (LaneType)
   {
-  case carla::road::Lane::LaneType::Driving:
-    return FString("Driving");
+  case carla::road::Lane::LaneType::NotSet:
+    return FString("NotSet");
     break;
-  case carla::road::Lane::LaneType::Stop:
-    return FString("Stop");
+  case carla::road::Lane::LaneType::Standard:
+    return FString("Standard");
     break;
-  case carla::road::Lane::LaneType::Shoulder:
-    return FString("Shoulder");
+  case carla::road::Lane::LaneType::HovLane:
+    return FString("HovLane");
     break;
-  case carla::road::Lane::LaneType::Biking:
-    return FString("Biking");
+  case carla::road::Lane::LaneType::BikeLane:
+    return FString("BikeLane");
     break;
-  case carla::road::Lane::LaneType::Sidewalk:
-    return FString("Sidewalk");
-    break;
-  case carla::road::Lane::LaneType::Border:
-    return FString("Border");
+  case carla::road::Lane::LaneType::NoTrucks:
+    return FString("NoTrucks");
     break;
   case carla::road::Lane::LaneType::Restricted:
     return FString("Restricted");
-    break;
-  case carla::road::Lane::LaneType::Parking:
-    return FString("Parking");
-    break;
-  case carla::road::Lane::LaneType::Bidirectional:
-    return FString("Bidirectional");
-    break;
-  case carla::road::Lane::LaneType::Median:
-    return FString("Median");
-    break;
-  case carla::road::Lane::LaneType::Special1:
-    return FString("Special1");
-    break;
-  case carla::road::Lane::LaneType::Special2:
-    return FString("Special2");
-    break;
-  case carla::road::Lane::LaneType::Special3:
-    return FString("Special3");
-    break;
-  case carla::road::Lane::LaneType::RoadWorks:
-    return FString("RoadWorks");
-    break;
-  case carla::road::Lane::LaneType::Tram:
-    return FString("Tram");
-    break;
-  case carla::road::Lane::LaneType::Rail:
-    return FString("Rail");
-    break;
-  case carla::road::Lane::LaneType::Entry:
-    return FString("Entry");
-    break;
-  case carla::road::Lane::LaneType::Exit:
-    return FString("Exit");
-    break;
-  case carla::road::Lane::LaneType::OffRamp:
-    return FString("OffRamp");
-    break;
-  case carla::road::Lane::LaneType::OnRamp:
-    return FString("OnRamp");
-    break;
-  case carla::road::Lane::LaneType::Any:
-    return FString("Any");
     break;
   }
 
@@ -545,7 +500,7 @@ void UOpenDriveToMap::GenerateRoadMesh( const boost::optional<carla::road::Map>&
         continue;
       }
 
-      if(PairMap.first == carla::road::Lane::LaneType::Driving)
+      if(PairMap.first == carla::road::Lane::LaneType::Standard)
       {
         for( auto& Vertex : Mesh->GetVertices() )
         {
@@ -567,13 +522,13 @@ void UOpenDriveToMap::GenerateRoadMesh( const boost::optional<carla::road::Map>&
 
       StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-      if(DefaultRoadMaterial && PairMap.first == carla::road::Lane::LaneType::Driving)
+      if(DefaultRoadMaterial && PairMap.first == carla::road::Lane::LaneType::Standard)
       {
         StaticMeshComponent->SetMaterial(0, DefaultRoadMaterial);
         StaticMeshComponent->CastShadow = false;
         TempActor->SetActorLabel(FString("SM_DrivingLane_") + FString::FromInt(index));
       }
-      if(DefaultSidewalksMaterial && PairMap.first == carla::road::Lane::LaneType::Sidewalk)
+      if(DefaultSidewalksMaterial && PairMap.first == carla::road::Lane::LaneType::BikeLane)
       {
         StaticMeshComponent->SetMaterial(0, DefaultSidewalksMaterial);
         TempActor->SetActorLabel(FString("SM_Sidewalk_") + FString::FromInt(index));
@@ -605,13 +560,13 @@ void UOpenDriveToMap::GenerateRoadMesh( const boost::optional<carla::road::Map>&
         Tangents
       );
 
-      if(PairMap.first == carla::road::Lane::LaneType::Sidewalk)
+      if(PairMap.first == carla::road::Lane::LaneType::BikeLane)
       {
         UStaticMesh* MeshToSet = UMapGenFunctionLibrary::CreateMesh(MeshData,  Tangents, DefaultSidewalksMaterial, MapName, "DrivingLane", FName(TEXT("SM_SidewalkMesh" + FString::FromInt(index) + GetStringForCurrentTile() )));
         StaticMeshComponent->SetStaticMesh(MeshToSet);
       }
 
-      if(PairMap.first == carla::road::Lane::LaneType::Driving)
+      if(PairMap.first == carla::road::Lane::LaneType::Standard)
       {
         UStaticMesh* MeshToSet = UMapGenFunctionLibrary::CreateMesh(MeshData,  Tangents, DefaultRoadMaterial, MapName, "DrivingLane", FName(TEXT("SM_DrivingLaneMesh" + FString::FromInt(index) + GetStringForCurrentTile() )));
         StaticMeshComponent->SetStaticMesh(MeshToSet);
@@ -891,8 +846,8 @@ bool UOpenDriveToMap::IsInRoad(
   const boost::optional<carla::road::Map>& ParamCarlaMap,
   FVector &location) const
 {
-  int32_t start = static_cast<int32_t>(carla::road::Lane::LaneType::Driving);
-  int32_t end = static_cast<int32_t>(carla::road::Lane::LaneType::Sidewalk);
+  int32_t start = static_cast<int32_t>(carla::road::Lane::LaneType::Standard);
+  int32_t end = static_cast<int32_t>(carla::road::Lane::LaneType::Restricted);
   for( int32_t i = start; i < end; ++i)
   {
     if(ParamCarlaMap->GetWaypoint(location, i))

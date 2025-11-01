@@ -53,11 +53,11 @@ namespace road {
 
     boost::optional<element::Waypoint> GetClosestWaypointOnRoad(
         const geom::Location &location,
-        int32_t lane_type = static_cast<int32_t>(Lane::LaneType::Driving)) const;
+        int32_t lane_type = static_cast<int32_t>(Lane::LaneType::Standard)) const;
 
     boost::optional<element::Waypoint> GetWaypoint(
         const geom::Location &location,
-        int32_t lane_type = static_cast<int32_t>(Lane::LaneType::Driving)) const;
+        int32_t lane_type = static_cast<int32_t>(Lane::LaneType::Standard)) const;
 
     boost::optional<element::Waypoint> GetWaypoint(
         RoadId road_id,
@@ -137,10 +137,10 @@ namespace road {
     std::vector<Waypoint> GenerateWaypoints(double approx_distance) const;
 
     /// Generate waypoints on each @a lane at the start of each @a road
-    std::vector<Waypoint> GenerateWaypointsOnRoadEntries(Lane::LaneType lane_type = Lane::LaneType::Driving) const;
+    std::vector<Waypoint> GenerateWaypointsOnRoadEntries(Lane::LaneType lane_type = Lane::LaneType::Standard) const;
 
     /// Generate waypoints at the entry of each lane of the specified road
-    std::vector<Waypoint> GenerateWaypointsInRoad(RoadId road_id, Lane::LaneType lane_type = Lane::LaneType::Driving) const;
+    std::vector<Waypoint> GenerateWaypointsInRoad(RoadId road_id, Lane::LaneType lane_type = Lane::LaneType::Standard) const;
 
     /// Generate the minimum set of waypoints that define the topology of @a
     /// map. The waypoints are placed at the entrance of each lane.

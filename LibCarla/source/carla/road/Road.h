@@ -18,6 +18,7 @@
 #include "carla/road/LaneSectionMap.h"
 #include "carla/road/RoadElementSet.h"
 #include "carla/road/RoadTypes.h"
+#include "carla/road/MapDataTypes.h"
 
 #include <unordered_map>
 #include <vector>
@@ -47,6 +48,10 @@ namespace road {
     JuncId GetJunctionId() const;
 
     bool IsRHT() const;
+
+    ts::RoadType GetRoadType() const;
+
+    void SetRoadType(ts::RoadType road_type);
 
     Lane &GetLaneByDistance(double s, LaneId lane_id);
 
@@ -109,7 +114,7 @@ namespace road {
     const std::pair<const Lane *, double> GetNearestLane(
         const double s,
         const geom::Location &loc,
-        uint32_t type = static_cast<uint32_t>(Lane::LaneType::Any)) const;
+        uint32_t type = static_cast<uint32_t>(Lane::LaneType::Standard)) const;
 
     template <typename T>
     const T *GetInfo(const double s) const {
@@ -197,6 +202,8 @@ namespace road {
     JuncId _junction_id { -1 };
 
     bool _is_rht { true };
+
+    ts::RoadType _road_type { ts::RoadType::NotSet };
 
     LaneSectionMap _lane_sections;
 

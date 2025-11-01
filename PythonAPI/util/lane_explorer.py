@@ -66,7 +66,7 @@ def draw_junction(debug, junction, l_time=10):
         point4, point1,
         thickness=0.1, color=orange, life_time=l_time, persistent_lines=False)
     # draw junction pairs (begin-end) of every lane
-    junction_w = junction.get_waypoints(carla.LaneType.Any)
+    junction_w = junction.get_waypoints(carla.LaneType.Standard)
     for pair_w in junction_w:
         draw_transform(debug, pair_w[0].transform, orange, l_time)
         debug.draw_point(
@@ -148,13 +148,13 @@ def main():
             # check for available right driving lanes
             if current_w.lane_change & carla.LaneChange.Right:
                 right_w = current_w.get_right_lane()
-                if right_w and right_w.lane_type == carla.LaneType.Driving:
+                if right_w and right_w.lane_type == carla.LaneType.Standard:
                     potential_w += list(right_w.next(waypoint_separation))
 
             # check for available left driving lanes
             if current_w.lane_change & carla.LaneChange.Left:
                 left_w = current_w.get_left_lane()
-                if left_w and left_w.lane_type == carla.LaneType.Driving:
+                if left_w and left_w.lane_type == carla.LaneType.Standard:
                     potential_w += list(left_w.next(waypoint_separation))
 
             # choose a random waypoint to be the next

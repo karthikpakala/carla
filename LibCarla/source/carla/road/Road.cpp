@@ -51,6 +51,14 @@ namespace road {
     return _is_rht;
   }
 
+  ts::RoadType Road::GetRoadType() const {
+    return _road_type;
+  }
+
+  void Road::SetRoadType(ts::RoadType road_type) {
+    _road_type = road_type;
+  }
+
   RoadId Road::GetSuccessor() const {
     return _successor;
   }
@@ -271,7 +279,7 @@ namespace road {
       if (current_dist <= result.second) {
         // only consider the lanes that match the type flag for result
         // candidates
-        if ((static_cast<uint32_t>(lane.second->GetType()) & lane_type) > 0) {
+        if (static_cast<uint32_t>(lane.second->GetType()) == lane_type) {
           result.first = &(*lane.second);
           result.second = current_dist;
         }
@@ -294,7 +302,7 @@ namespace road {
       if (current_dist <= result.second) {
         // only consider the lanes that match the type flag for result
         // candidates
-        if ((static_cast<uint32_t>(lane.second->GetType()) & lane_type) > 0) {
+        if (static_cast<uint32_t>(lane.second->GetType()) == lane_type) {
           result.first = &(*lane.second);
           result.second = current_dist;
         }

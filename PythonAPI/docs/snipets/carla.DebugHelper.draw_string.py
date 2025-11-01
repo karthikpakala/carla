@@ -6,12 +6,12 @@
 current_w = map.get_waypoint(vehicle.get_location())
 while True:
 
-    next_w = map.get_waypoint(vehicle.get_location(), lane_type=carla.LaneType.Driving | carla.LaneType.Shoulder | carla.LaneType.Sidewalk )
+    next_w = map.get_waypoint(vehicle.get_location(), lane_type=carla.LaneType.Standard | carla.LaneType.BikeLane | carla.LaneType.Restricted )
     # Check if the vehicle is moving
     if next_w.id != current_w.id:
         vector = vehicle.get_velocity()
         # Check if the vehicle is on a sidewalk
-        if current_w.lane_type == carla.LaneType.Sidewalk:
+        if current_w.lane_type == carla.LaneType.BikeLane:
             draw_waypoint_union(debug, current_w, next_w, cyan if current_w.is_junction else red, 60)
         else:
             draw_waypoint_union(debug, current_w, next_w, cyan if current_w.is_junction else green, 60)

@@ -209,7 +209,7 @@ private:
 
   float DistanceToLaneBorder(const boost::optional<carla::road::Map>& CarlaMap,
       FVector &location,
-      int32_t lane_type = static_cast<int32_t>(carla::road::Lane::LaneType::Driving)) const;
+      int32_t lane_type = static_cast<int32_t>(carla::road::Lane::LaneType::Standard)) const;
 
   bool IsInRoad(const boost::optional<carla::road::Map>& ParamCarlaMap,
         FVector &location) const;

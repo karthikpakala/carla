@@ -10,6 +10,7 @@
 #include "carla/StringUtil.h"
 #include "carla/road/MapBuilder.h"
 #include "carla/road/RoadTypes.h"
+#include "carla/road/MapDataTypes.h"
 
 #include <pugixml/pugixml.hpp>
 
@@ -28,7 +29,7 @@ namespace parser {
 
   struct Lane {
     LaneId id;
-    road::Lane::LaneType type;
+    ts::LaneType type;
     bool level;
     LaneId predecessor;
     LaneId successor;
@@ -64,50 +65,20 @@ namespace parser {
     std::vector<LaneSection> sections;
   };
 
-  static road::Lane::LaneType StringToLaneType(std::string &&str) {
+  static ts::LaneType StringToLaneType(std::string &&str) {
     StringUtil::ToLower(str);
     if (str == "driving") {
-      return road::Lane::LaneType::Driving;
-    } else if (str == "stop") {
-      return road::Lane::LaneType::Stop;
-    } else if (str == "shoulder") {
-      return road::Lane::LaneType::Shoulder;
+      return ts::LaneType::Standard;
     } else if (str == "biking") {
-      return road::Lane::LaneType::Biking;
-    } else if (str == "sidewalk") {
-      return road::Lane::LaneType::Sidewalk;
-    } else if (str == "border") {
-      return road::Lane::LaneType::Border;
+      return ts::LaneType::BikeLane;
     } else if (str == "restricted") {
-      return road::Lane::LaneType::Restricted;
-    } else if (str == "parking") {
-      return road::Lane::LaneType::Parking;
-    } else if (str == "bidirectional") {
-      return road::Lane::LaneType::Bidirectional;
-    } else if (str == "median") {
-      return road::Lane::LaneType::Median;
-    } else if (str == "special1") {
-      return road::Lane::LaneType::Special1;
-    } else if (str == "special2") {
-      return road::Lane::LaneType::Special2;
-    } else if (str == "special3") {
-      return road::Lane::LaneType::Special3;
-    } else if (str == "roadworks") {
-      return road::Lane::LaneType::RoadWorks;
-    } else if (str == "tram") {
-      return road::Lane::LaneType::Tram;
-    } else if (str == "rail") {
-      return road::Lane::LaneType::Rail;
-    } else if (str == "entry") {
-      return road::Lane::LaneType::Entry;
-    } else if (str == "exit") {
-      return road::Lane::LaneType::Exit;
-    } else if (str == "offramp") {
-      return road::Lane::LaneType::OffRamp;
-    } else if (str == "onramp") {
-      return road::Lane::LaneType::OnRamp;
+      return ts::LaneType::Restricted;
+    } else if (str == "hov") {
+      return ts::LaneType::HovLane;
+    } else if (str == "notrucks") {
+      return ts::LaneType::NoTrucks;
     } else {
-      return road::Lane::LaneType::None;
+      return ts::LaneType::NotSet;
     }
   }
 
@@ -187,7 +158,7 @@ namespace parser {
 
         // left lanes
         for (pugi::xml_node node_lane : node_section.child("left").children("lane")) {
-          Lane lane { 0, road::Lane::LaneType::None, false, 0, 0 };
+          Lane lane { 0, road::Lane::LaneType::NotSet, false, 0, 0 };
 
           lane.id = node_lane.attribute("id").as_int();
           lane.type = StringToLaneType(node_lane.attribute("type").value());
@@ -210,7 +181,7 @@ namespace parser {
 
         // center lane
         for (pugi::xml_node node_lane : node_section.child("center").children("lane")) {
-          Lane lane { 0, road::Lane::LaneType::None, false, 0, 0 };
+          Lane lane { 0, road::Lane::LaneType::NotSet, false, 0, 0 };
 
           lane.id = node_lane.attribute("id").as_int();
           lane.type = StringToLaneType(node_lane.attribute("type").value());
@@ -233,7 +204,7 @@ namespace parser {
 
         // right lane
         for (pugi::xml_node node_lane : node_section.child("right").children("lane")) {
-          Lane lane { 0, road::Lane::LaneType::None, false, 0, 0 };
+          Lane lane { 0, road::Lane::LaneType::NotSet, false, 0, 0 };
 
           lane.id = node_lane.attribute("id").as_int();
           lane.type = StringToLaneType(node_lane.attribute("type").value());

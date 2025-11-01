@@ -518,7 +518,7 @@ def get_next_waypoints(carla_map, agent_states, waypoints, args):
     else:
         indices_of_interest = [i for i in range(len(agent_states)) if new_waypoint_needed(waypoints[i], agent_states[i], args.iai_waypoint_detection_threshold, args.iai_max_distance_away)]
     vehicle_locations = [Location(x=agent_states[i].center.x, y=agent_states[i].center.y, z=0.1) for i in indices_of_interest]
-    closest_waypoints = [carla_map.get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Driving) for vehicle_location in vehicle_locations]
+    closest_waypoints = [carla_map.get_waypoint(vehicle_location, project_to_road=True, lane_type=carla.LaneType.Standard) for vehicle_location in vehicle_locations]
     next_waypoints = [np.random.choice(wp.next(args.iai_waypoint_distance)) for wp in closest_waypoints]
     results = []
     if len(waypoints) == 0:

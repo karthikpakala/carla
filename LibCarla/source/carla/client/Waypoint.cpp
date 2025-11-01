@@ -43,7 +43,7 @@ namespace client {
 
   }
 
-  road::Lane::LaneType Waypoint::GetType() const {
+  ts::LaneType Waypoint::GetType() const {
     return _parent->GetMap().GetLaneType(_waypoint);
   }
 

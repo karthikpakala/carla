@@ -47,7 +47,7 @@ void USpeedLimitComponent::InitializeSign(const carla::road::Map &Map)
         auto signal_waypoint = Map.GetWaypoint(
             RoadId, lane, SignalReference->GetS()).get();
 
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Standard)
           continue;
 
         // Get 90% of the half size of the width of the lane

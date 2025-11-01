@@ -61,7 +61,7 @@ void UTrafficLightComponent::InitializeSign(const carla::road::Map &Map)
           }
         }
 
-        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Driving)
+        if(Map.GetLane(signal_waypoint).GetType() != cr::Lane::LaneType::Standard)
           continue;
 
         // Get 50% of the half size of the width of the lane

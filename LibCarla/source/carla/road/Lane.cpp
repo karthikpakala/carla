@@ -35,7 +35,7 @@ namespace road {
     return _id;
   }
 
-  Lane::LaneType Lane::GetType() const {
+  ts::LaneType Lane::GetType() const {
     return _type;
   }
 
@@ -236,7 +236,7 @@ namespace road {
     }
 
     float lane_width = static_cast<float>(GetWidth(s)) / 2.0f;
-    if (extra_width != 0.f && GetType() == Lane::LaneType::Driving) {
+    if (extra_width != 0.f && GetType() == ts::LaneType::Standard) {
       lane_width += extra_width;
     }
 
@@ -252,8 +252,8 @@ namespace road {
     dp_r.location.y *= -1;
     dp_l.location.y *= -1;
 
-    // Apply an offset to the Sidewalks
-    if (GetType() == LaneType::Sidewalk) {
+    // Apply an offset to the bike lanes (closest equivalent in new enum)
+    if (GetType() == ts::LaneType::BikeLane) {
       // RoadRunner doesn't export it right now and as a workarround where 15.24 cm
       // is the exact height that match with most of the RoadRunner sidewalks
       dp_r.location.z += 0.1524f;

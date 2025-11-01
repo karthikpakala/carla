@@ -3,7 +3,7 @@
 # Shows the current lane type and if a lane change can be done in the actual lane or the surrounding ones.
 
 # ...
-waypoint = world.get_map().get_waypoint(vehicle.get_location(),project_to_road=True, lane_type=(carla.LaneType.Driving | carla.LaneType.Shoulder | carla.LaneType.Sidewalk))
+waypoint = world.get_map().get_waypoint(vehicle.get_location(),project_to_road=True, lane_type=(carla.LaneType.Standard | carla.LaneType.BikeLane | carla.LaneType.Restricted))
 print("Current lane type: " + str(waypoint.lane_type))
 # Check current lane change allowed
 print("Current Lane change:  " + str(waypoint.lane_change))

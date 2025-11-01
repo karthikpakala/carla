@@ -13,6 +13,7 @@
 #include <carla/client/Landmark.h>
 #include <carla/client/RoadMark.h>
 #include <carla/road/SignalType.h>
+#include <carla/road/MapDataTypes.h>
 
 #include <ostream>
 #include <fstream>
@@ -53,7 +54,7 @@ static auto GetTopology(const carla::client::Map &self) {
   return result;
 }
 
-static auto GetJunctionWaypoints(const carla::client::Junction &self, const carla::road::Lane::LaneType lane_type) {
+static auto GetJunctionWaypoints(const carla::client::Junction &self, const ts::LaneType lane_type) {
   namespace py = boost::python;
   auto topology = self.GetWaypoints(lane_type);
   py::list result;
@@ -96,29 +97,49 @@ void export_map() {
   // -- Enums ------------------------------------------------------------------
   // ===========================================================================
 
-  enum_<cr::Lane::LaneType>("LaneType")
-    .value("NONE", cr::Lane::LaneType::None) // None is reserved in Python3
-    .value("Driving", cr::Lane::LaneType::Driving)
-    .value("Stop", cr::Lane::LaneType::Stop)
-    .value("Shoulder", cr::Lane::LaneType::Shoulder)
-    .value("Biking", cr::Lane::LaneType::Biking)
-    .value("Sidewalk", cr::Lane::LaneType::Sidewalk)
-    .value("Border", cr::Lane::LaneType::Border)
-    .value("Restricted", cr::Lane::LaneType::Restricted)
-    .value("Parking", cr::Lane::LaneType::Parking)
-    .value("Bidirectional", cr::Lane::LaneType::Bidirectional)
-    .value("Median", cr::Lane::LaneType::Median)
-    .value("Special1", cr::Lane::LaneType::Special1)
-    .value("Special2", cr::Lane::LaneType::Special2)
-    .value("Special3", cr::Lane::LaneType::Special3)
-    .value("RoadWorks", cr::Lane::LaneType::RoadWorks)
-    .value("Tram", cr::Lane::LaneType::Tram)
-    .value("Rail", cr::Lane::LaneType::Rail)
-    .value("Entry", cr::Lane::LaneType::Entry)
-    .value("Exit", cr::Lane::LaneType::Exit)
-    .value("OffRamp", cr::Lane::LaneType::OffRamp)
-    .value("OnRamp", cr::Lane::LaneType::OnRamp)
-    .value("Any", cr::Lane::LaneType::Any)
+  enum_<ts::LaneType>("LaneType")
+    .value("NotSet", ts::LaneType::NotSet)
+    .value("Standard", ts::LaneType::Standard)
+    .value("HovLane", ts::LaneType::HovLane)
+    .value("BikeLane", ts::LaneType::BikeLane)
+    .value("NoTrucks", ts::LaneType::NoTrucks)
+    .value("Restricted", ts::LaneType::Restricted)
+  ;
+
+  enum_<ts::RoadType>("RoadType")
+    .value("NotSet", ts::RoadType::NotSet)
+    .value("Highway", ts::RoadType::Highway)
+    .value("SurfaceStreet", ts::RoadType::SurfaceStreet)
+    .value("Intersection", ts::RoadType::Intersection)
+    .value("HighwayConnector", ts::RoadType::HighwayConnector)
+  ;
+
+  enum_<ts::LaneRightOfWay>("LaneRightOfWay")
+    .value("Continue", ts::LaneRightOfWay::Continue)
+    .value("Stop", ts::LaneRightOfWay::Stop)
+    .value("Yield", ts::LaneRightOfWay::Yield)
+    .value("TrafficSignal", ts::LaneRightOfWay::TrafficSignal)
+  ;
+
+  enum_<ts::LaneBlockageState>("LaneBlockageState")
+    .value("NotBlocked", ts::LaneBlockageState::NotBlocked)
+    .value("Blocked", ts::LaneBlockageState::Blocked)
+  ;
+
+  enum_<ts::LaneDirection>("LaneDirection")
+    .value("Backward", ts::LaneDirection::Backward)
+    .value("Both", ts::LaneDirection::Both)
+    .value("Forward", ts::LaneDirection::Forward)
+  ;
+
+  enum_<ts::SurfacePolygonType>("SurfacePolygonType")
+    .value("CrossWalk", ts::SurfacePolygonType::CrossWalk)
+    .value("Junction", ts::SurfacePolygonType::Junction)
+    .value("SideWalk", ts::SurfacePolygonType::SideWalk)
+    .value("SpeedBump", ts::SurfacePolygonType::SpeedBump)
+    .value("Surface", ts::SurfacePolygonType::Surface)
+    .value("TrainTracks", ts::SurfacePolygonType::TrainTracks)
+    .value("Unknown", ts::SurfacePolygonType::Unknown)
   ;
 
   enum_<cre::LaneMarking::LaneChange>("LaneChange")
@@ -128,28 +149,24 @@ void export_map() {
     .value("Both", cre::LaneMarking::LaneChange::Both)
   ;
 
-  enum_<cre::LaneMarking::Color>("LaneMarkingColor")
-    .value("Standard", cre::LaneMarking::Color::Standard)
-    .value("Blue", cre::LaneMarking::Color::Blue)
-    .value("Green", cre::LaneMarking::Color::Green)
-    .value("Red", cre::LaneMarking::Color::Red)
-    .value("White", cre::LaneMarking::Color::White)
-    .value("Yellow", cre::LaneMarking::Color::Yellow)
-    .value("Other", cre::LaneMarking::Color::Other)
+  enum_<ts::LaneBoundaryColor>("LaneBoundaryColor")
+    .value("NotSet", ts::LaneBoundaryColor::NotSet)
+    .value("White", ts::LaneBoundaryColor::White)
+    .value("Yellow", ts::LaneBoundaryColor::Yellow)
+    .value("Orange", ts::LaneBoundaryColor::Orange)
   ;
 
-  enum_<cre::LaneMarking::Type>("LaneMarkingType")
-    .value("NONE", cre::LaneMarking::Type::None)
-    .value("Other", cre::LaneMarking::Type::Other)
-    .value("Broken", cre::LaneMarking::Type::Broken)
-    .value("Solid", cre::LaneMarking::Type::Solid)
-    .value("SolidSolid", cre::LaneMarking::Type::SolidSolid)
-    .value("SolidBroken", cre::LaneMarking::Type::SolidBroken)
-    .value("BrokenSolid", cre::LaneMarking::Type::BrokenSolid)
-    .value("BrokenBroken", cre::LaneMarking::Type::BrokenBroken)
-    .value("BottsDots", cre::LaneMarking::Type::BottsDots)
-    .value("Grass", cre::LaneMarking::Type::Grass)
-    .value("Curb", cre::LaneMarking::Type::Curb)
+  enum_<ts::LaneBoundaryType>("LaneBoundaryType")
+    .value("NotSet", ts::LaneBoundaryType::NotSet)
+    .value("None", ts::LaneBoundaryType::None)
+    .value("Solid", ts::LaneBoundaryType::Solid)
+    .value("DoubleSolid", ts::LaneBoundaryType::DoubleSolid)
+    .value("DashedSolid", ts::LaneBoundaryType::DashedSolid)
+    .value("SolidDashed", ts::LaneBoundaryType::SolidDashed)
+    .value("Dashed", ts::LaneBoundaryType::Dashed)
+    .value("DoubleDashed", ts::LaneBoundaryType::DoubleDashed)
+    .value("ReflectorsOnly", ts::LaneBoundaryType::ReflectorsOnly)
+    .value("Curb", ts::LaneBoundaryType::Curb)
   ;
 
   enum_<cr::SignalOrientation>("LandmarkOrientation")
@@ -171,7 +188,7 @@ void export_map() {
     .def(init<std::string, std::string>((arg("name"), arg("xodr_content"))))
     .add_property("name", CALL_RETURNING_COPY(cc::Map, GetName))
     .def("get_spawn_points", CALL_RETURNING_LIST(cc::Map, GetRecommendedSpawnPoints))
-    .def("get_waypoint", &cc::Map::GetWaypoint, (arg("location"), arg("project_to_road")=true, arg("lane_type")=cr::Lane::LaneType::Driving))
+    .def("get_waypoint", &cc::Map::GetWaypoint, (arg("location"), arg("project_to_road")=true, arg("lane_type")=cr::Lane::LaneType::Standard))
     .def("get_waypoint_xodr", &cc::Map::GetWaypointXODR, (arg("road_id"), arg("lane_id"), arg("s")))
     .def("get_topology", &GetTopology)
     .def("generate_waypoints", CALL_RETURNING_LIST_1(cc::Map, GenerateWaypoints, double), (args("distance")))

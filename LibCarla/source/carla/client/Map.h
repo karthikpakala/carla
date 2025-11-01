@@ -12,6 +12,7 @@
 #include "carla/road/Lane.h"
 #include "carla/road/Map.h"
 #include "carla/road/RoadTypes.h"
+#include "carla/road/MapDataTypes.h"
 #include "carla/rpc/MapInfo.h"
 #include "Landmark.h"
 #include "RoadMark.h"
@@ -55,7 +56,7 @@ namespace client {
     SharedPtr<Waypoint> GetWaypoint(
         const geom::Location &location,
         bool project_to_road = true,
-        int32_t lane_type = static_cast<uint32_t>(road::Lane::LaneType::Driving)) const;
+        int32_t lane_type = static_cast<uint32_t>(ts::LaneType::Standard)) const;
 
     SharedPtr<Waypoint> GetWaypointXODR(
       carla::road::RoadId road_id,
@@ -81,7 +82,7 @@ namespace client {
     /// Returns a pair of waypoints (start and end) for each lane in the
     /// junction
     std::vector<std::pair<SharedPtr<Waypoint>, SharedPtr<Waypoint>>> GetJunctionWaypoints(
-        road::JuncId id, road::Lane::LaneType type) const;
+        road::JuncId id, ts::LaneType type) const;
 
     /// Returns all the larndmarks in the map
     std::vector<SharedPtr<Landmark>> GetAllLandmarks() const;

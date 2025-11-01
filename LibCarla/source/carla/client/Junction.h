@@ -10,6 +10,7 @@
 #include "carla/NonCopyable.h"
 #include "carla/road/Junction.h"
 #include "carla/road/RoadTypes.h"
+#include "carla/road/MapDataTypes.h"
 #include "carla/geom/BoundingBox.h"
 #include "carla/client/Waypoint.h"
 
@@ -31,7 +32,7 @@ namespace client {
     }
 
     std::vector<std::pair<SharedPtr<Waypoint>,SharedPtr<Waypoint>>> GetWaypoints(
-        road::Lane::LaneType type = road::Lane::LaneType::Driving) const;
+        ts::LaneType type = ts::LaneType::Standard) const;
 
     geom::BoundingBox GetBoundingBox() const;
 

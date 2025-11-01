@@ -124,7 +124,7 @@ namespace client {
 
   std::vector<std::pair<SharedPtr<Waypoint>, SharedPtr<Waypoint>>> Map::GetJunctionWaypoints(
       road::JuncId id,
-      road::Lane::LaneType lane_type) const {
+      ts::LaneType lane_type) const {
     std::vector<std::pair<SharedPtr<Waypoint>, SharedPtr<Waypoint>>> result;
     auto junction_waypoints = GetMap().GetJunctionWaypoints(id, lane_type);
     for (auto &waypoint_pair : junction_waypoints) {

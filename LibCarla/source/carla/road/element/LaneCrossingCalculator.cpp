@@ -20,10 +20,9 @@ namespace element {
   /// the nearest center of a lane given a location that are in a road,
   /// but very close to a shoulder.
   static constexpr uint32_t FLAGS =
-      static_cast<uint32_t>(Lane::LaneType::Driving) |
-      static_cast<uint32_t>(Lane::LaneType::Bidirectional) |
-      static_cast<uint32_t>(Lane::LaneType::Biking) |
-      static_cast<uint32_t>(Lane::LaneType::Parking);
+      static_cast<uint32_t>(Lane::LaneType::Standard) |
+      static_cast<uint32_t>(Lane::LaneType::BikeLane) |
+      static_cast<uint32_t>(Lane::LaneType::Restricted);
 
   /// Calculate the lane markings that need to be crossed from @a lane_id_origin
   /// to @a lane_id_destination.

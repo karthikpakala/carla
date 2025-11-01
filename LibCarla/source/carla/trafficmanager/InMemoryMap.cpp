@@ -8,6 +8,7 @@
 
 #include "carla/trafficmanager/Constants.h"
 #include "carla/trafficmanager/InMemoryMap.h"
+#include "carla/road/MapDataTypes.h"
 #include <boost/geometry/geometries/box.hpp>
 
 namespace carla {
@@ -522,7 +523,7 @@ namespace traffic_manager {
       {
         const WaypointPtr left_waypoint = raw_waypoint->GetLeft();
         if (left_waypoint != nullptr &&
-        left_waypoint->GetType() == crd::Lane::LaneType::Driving &&
+        left_waypoint->GetType() == ts::LaneType::Standard &&
         (left_waypoint->GetLaneId() * raw_waypoint->GetLaneId() > 0)) {
 
           SimpleWaypointPtr closest_simple_waypoint = GetWaypoint(left_waypoint->GetTransform().location);
@@ -536,7 +537,7 @@ namespace traffic_manager {
       {
 	    const WaypointPtr right_waypoint = raw_waypoint->GetRight();
 	    if(right_waypoint != nullptr &&
-	    right_waypoint->GetType() == crd::Lane::LaneType::Driving &&
+	    right_waypoint->GetType() == ts::LaneType::Standard &&
 	    (right_waypoint->GetLaneId() * raw_waypoint->GetLaneId() > 0)) {
 
 	      SimpleWaypointPtr closest_simple_waypoint = GetWaypoint(right_waypoint->GetTransform().location);
@@ -551,7 +552,7 @@ namespace traffic_manager {
         /// Right transit way point
         const WaypointPtr right_waypoint = raw_waypoint->GetRight();
         if (right_waypoint != nullptr &&
-        right_waypoint->GetType() == crd::Lane::LaneType::Driving &&
+        right_waypoint->GetType() == ts::LaneType::Standard &&
         (right_waypoint->GetLaneId() * raw_waypoint->GetLaneId() > 0)) {
 
           SimpleWaypointPtr closest_simple_waypointR = GetWaypoint(right_waypoint->GetTransform().location);
@@ -561,7 +562,7 @@ namespace traffic_manager {
         /// Left transit way point
         const WaypointPtr left_waypoint = raw_waypoint->GetLeft();
         if (left_waypoint != nullptr &&
-        left_waypoint->GetType() == crd::Lane::LaneType::Driving &&
+        left_waypoint->GetType() == ts::LaneType::Standard &&
         (left_waypoint->GetLaneId() * raw_waypoint->GetLaneId() > 0)) {
 
           SimpleWaypointPtr closest_simple_waypointL = GetWaypoint(left_waypoint->GetTransform().location);

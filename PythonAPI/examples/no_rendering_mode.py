@@ -744,30 +744,30 @@ class MapImage(object):
                 for w in waypoints:
                     # Classify lane types until there are no waypoints by going left
                     l = w.get_left_lane()
-                    while l and l.lane_type != carla.LaneType.Driving:
+                    while l and l.lane_type != carla.LaneType.Standard:
 
-                        if l.lane_type == carla.LaneType.Shoulder:
+                        if l.lane_type == carla.LaneType.BikeLane:
                             shoulder[0].append(l)
 
-                        if l.lane_type == carla.LaneType.Parking:
+                        if l.lane_type == carla.LaneType.Restricted:
                             parking[0].append(l)
 
-                        if l.lane_type == carla.LaneType.Sidewalk:
+                        if l.lane_type == carla.LaneType.BikeLane:
                             sidewalk[0].append(l)
 
                         l = l.get_left_lane()
 
                     # Classify lane types until there are no waypoints by going right
                     r = w.get_right_lane()
-                    while r and r.lane_type != carla.LaneType.Driving:
+                    while r and r.lane_type != carla.LaneType.Standard:
 
-                        if r.lane_type == carla.LaneType.Shoulder:
+                        if r.lane_type == carla.LaneType.BikeLane:
                             shoulder[1].append(r)
 
-                        if r.lane_type == carla.LaneType.Parking:
+                        if r.lane_type == carla.LaneType.Restricted:
                             parking[1].append(r)
 
-                        if r.lane_type == carla.LaneType.Sidewalk:
+                        if r.lane_type == carla.LaneType.BikeLane:
                             sidewalk[1].append(r)
 
                         r = r.get_right_lane()
@@ -814,11 +814,11 @@ class MapImage(object):
                     pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(nxt), 2)
                 if wp.lane_change & carla.LaneChange.Right:
                     r = wp.get_right_lane()
-                    if r and r.lane_type == carla.LaneType.Driving:
+                    if r and r.lane_type == carla.LaneType.Standard:
                         pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(r), 2)
                 if wp.lane_change & carla.LaneChange.Left:
                     l = wp.get_left_lane()
-                    if l and l.lane_type == carla.LaneType.Driving:
+                    if l and l.lane_type == carla.LaneType.Standard:
                         pygame.draw.line(map_surface, col, to_pixel(wp), to_pixel(l), 2)
 
         actors = carla_world.get_actors()

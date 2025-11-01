@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <string>
+#include "carla/road/MapDataTypes.h"
 
 namespace carla {
 namespace road {
@@ -17,34 +18,9 @@ namespace element {
 
   struct LaneMarking {
 
-    enum class Type {
-      Other,
-      Broken,
-      Solid,
-      // (for double solid line)
-      SolidSolid,
-      // (from inside to outside, exception: center lane -from left to right)
-      SolidBroken,
-      // (from inside to outside, exception: center lane -from left to right)
-      BrokenSolid,
-      // (from inside to outside, exception: center lane -from left to right)
-      BrokenBroken,
-      BottsDots,
-      // (meaning a grass edge)
-      Grass,
-      Curb,
-      None
-    };
-
-    enum class Color : uint8_t {
-      Standard = 0u, // (equivalent to "white")
-      Blue     = 1u,
-      Green    = 2u,
-      Red      = 3u,
-      White    = Standard,
-      Yellow   = 4u,
-      Other    = 5u
-    };
+    // Use new boundary types from MapDataTypes.hpp
+    using Type = ts::LaneBoundaryType;
+    using Color = ts::LaneBoundaryColor;
 
     /// Can be used as flags.
     enum class LaneChange : uint8_t {
@@ -56,9 +32,9 @@ namespace element {
 
     explicit LaneMarking(const RoadInfoMarkRecord &info);
 
-    Type type = Type::None;
+    Type type = Type::NotSet;
 
-    Color color = Color::Standard;
+    Color color = Color::NotSet;
 
     LaneChange lane_change = LaneChange::None;
 
@@ -69,8 +45,11 @@ namespace element {
         case Color::Yellow:
           return std::string("yellow");
           break;
-        case Color::Standard:
+        case Color::White:
           return std::string("white");
+          break;
+        case Color::Orange:
+          return std::string("orange");
           break;
         default:
           return std::string("white");
